@@ -17,7 +17,7 @@ export function delPermissions(id) {
 
 export function getPermissionTree() {
 	return request({
-		url: '/permissions/tree/',
+		url: '/permissions/tree',
 		method: 'get'
 	})
 }

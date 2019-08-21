@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import { getDepts } from '@/api/dept'
+import { getDeptList } from '@/api/dept'
 import { fetchUserList } from '@/api/user'
 import { parseTime } from '@/utils/index'
 import eForm from './form'
@@ -158,7 +158,7 @@ export default {
       const sort = 'id,desc'
       const params = { sort: sort }
       if (this.deptName) { params['name'] = this.deptName }
-      getDepts(params).then(response => {
+      getDeptList(params).then(response => {
         this.depts = response.data
       });
     },

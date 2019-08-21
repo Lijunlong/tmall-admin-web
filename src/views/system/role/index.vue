@@ -1,0 +1,330 @@
+<template>
+  <div class="app-container">
+		<!--表单组件-->
+    <eForm ref="dialogForm" :is-add="isAdd" @getRoleList="getRoleList"/>
+    <!--工具栏-->
+    <div class="head-container">
+			<!-- 搜索 -->
+      <el-input v-model="listQuery.name" clearable placeholder="输入名称搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>
+      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
+      <!-- 新增 -->
+      <div style="display: inline-block;margin: 0px 2px;">
+        <el-button
+          class="filter-item"
+          size="mini"
+          type="primary"
+          icon="el-icon-plus"
+          @click="add">新增</el-button>
+      </div>
+    </div>
+		<el-row :gutter="15">
+      <!--角色管理-->
+      <el-col :xs="24" :sm="24" :md="16" :lg="16" :xl="17">
+        <el-card class="box-card" shadow="never">
+          <div slot="header" class="clearfix">
+            <span class="role-span">角色列表</span>
+            <div id="opt" style="float: right">
+              <el-radio-group v-model="opt" size="mini">
+                <el-radio-button label="菜单分配"/>
+                <el-radio-button label="权限分配"/>
+              </el-radio-group>
+            </div>
+          </div>
+					<el-table v-loading="listLoading" :data="list" highlight-current-row size="small" style="width: 100%;" @current-change="handleCurrentLineChange">
+						<el-table-column prop="name" label="名称"/>
+						<el-table-column prop="dataScope" label="数据权限"/>
+						<el-table-column prop="level" label="角色级别"/>
+						<el-table-column :show-overflow-tooltip="true" prop="description" label="描述"/>
+						<el-table-column :show-overflow-tooltip="true" prop="createTime" label="创建日期">
+							<template slot-scope="scope">
+								<span>{{ parseTime(scope.row.createTime) }}</span>
+							</template>
+						</el-table-column>
+						<el-table-column label="操作" width="130px" align="center">
+              <template slot-scope="scope">
+                <el-button size="mini" type="primary" icon="el-icon-edit" @click="edit(scope.row)"/>
+                <el-popover
+                  :ref="scope.row.id"
+                  placement="top"
+                  width="180">
+                  <p>确定删除本条数据吗？</p>
+                  <div style="text-align: right; margin: 0">
+                    <el-button size="mini" type="text" @click="$refs[scope.row.id].doClose()">取消</el-button>
+                    <el-button :loading="delLoading" type="primary" size="mini" @click="subDelete(scope.row.id)">确定</el-button>
+                  </div>
+                  <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini"/>
+                </el-popover>
+              </template>
+            </el-table-column>
+					</el-table>
+					<!--分页组件-->
+					<div class="pagination-container">
+						<el-pagination
+							background
+							@size-change="handleSizeChange"
+							@current-change="handleCurrentChange"
+							layout="total, sizes,prev, pager, next,jumper"
+							:page-size="listQuery.pageSize"
+							:page-sizes="[5,10,15]"
+							:current-page.sync="listQuery.pageNum"
+							:total="total">
+						</el-pagination>
+					</div>
+				</el-card>
+      </el-col>
+			<!-- 授权 -->
+			<el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="7">
+				<el-card v-show="opt === '菜单分配'" class="box-card" shadow="never">
+					<div slot="header" class="clearfix">
+						<el-tooltip class="item" effect="dark" content="选择指定角色分配菜单" placement="top">
+							<span class="role-span">菜单分配</span>
+						</el-tooltip>
+						<el-button
+							:disabled="!showButton"
+							:loading="menuLoading"
+							icon="el-icon-check"
+							size="mini"
+							style="float: right; padding: 6px 9px"
+							type="primary"
+							@click="saveMenu">保存</el-button>
+					</div>
+					<el-tree
+						ref="menu"
+						:data="menus"
+						:default-checked-keys="menuIds"
+						:props="defaultProps"
+						accordion
+						show-checkbox
+						node-key="id"/>
+				</el-card>
+				<el-card v-show="opt === '权限分配'" class="box-card" shadow="never">
+					<div slot="header" class="clearfix">
+						<el-tooltip class="item" effect="dark" content="选择指定角色分配权限" placement="top">
+							<span class="role-span">权限分配</span>
+						</el-tooltip>
+						<el-button
+							:disabled="!showButton"
+							:loading="permissionLoading"
+							icon="el-icon-check"
+							size="mini"
+							style="float: right; padding: 6px 9px"
+							type="primary"
+							@click="savePermission">保存</el-button>
+					</div>
+					<el-tree
+						ref="permission"
+						:data="permissions"
+						:default-checked-keys="permissionIds"
+						:props="defaultProps"
+						show-checkbox
+						accordion
+						node-key="id"/>
+				</el-card>
+			</el-col>
+		</el-row>
+  </div>
+</template>
+
+<script>
+import { parseTime } from '@/utils/index'
+import { getRoles, updateRoleMenu, updateRolePermission, getSingleRole, deleteRole } from '@/api/role'
+import { getMenus } from '@/api/menu'
+import { getPermissionTree } from '@/api/permission'
+import eForm from './form'
+
+export default {
+	components: { eForm },
+  data() {
+    return {
+			listLoading: false, list: [], opt: '菜单分配', total: null, delLoading: false, menuLoading: false, permissionLoading: false, isAdd: false,
+			menus: [], permissions: [], showButton: false, menuIds: [], permissionIds: [], currentId: 0,
+			listQuery: {
+        pageNum: 1,
+				pageSize: 5,
+				name: null
+			},
+			defaultProps: {
+        children: 'children',
+        label: 'label'
+			}
+    }
+  },
+  created() {
+		this.getRoleList();
+		this.getMenuTree();
+		this.getPermissionTree();
+  },
+  methods: {
+		parseTime,
+		handleSizeChange(val) {
+      this.listQuery.pageNum = 1;
+      this.listQuery.pageSize = val;
+      this.getRoleList();
+    },
+    handleCurrentChange(val) {
+      this.listQuery.pageNum = val;
+      this.getRoleList();
+    },
+		getRoleList(){
+			this.listLoading = true;
+			getRoles(this.listQuery).then(response => {
+				this.listLoading = false;
+				this.list = response.data.list
+				this.total = response.data.total;
+      }).catch(err => {
+        this.listLoading = false
+      });
+		},
+		getMenuTree(){
+			this.menuLoading = true;
+			getMenus().then(response => {
+				this.menus = response.data
+				this.menuLoading = false;
+      }).catch(err => {
+        this.menuLoading = false
+      });
+		},
+		getPermissionTree(){
+			this.permissionLoading = true;
+			getPermissionTree().then(response => {
+				this.permissions = response.data
+				this.permissionLoading = false;
+      }).catch(err => {
+        this.permissionLoading = false
+      });
+		},
+		handleCurrentLineChange(val) {
+      if (val) {
+        const _this = this
+        // 清空权限与菜单的选中
+        this.$refs.permission.setCheckedKeys([])
+        this.$refs.menu.setCheckedKeys([])
+        // 保存当前的角色id
+        this.currentId = val.id
+        // 点击后显示按钮
+        this.showButton = true
+        // 初始化
+        this.menuIds = []
+        this.permissionIds = []
+				// 菜单数据需要特殊处理
+				val.menus.forEach(function(data, index) {
+          let add = true
+          for (let i = 0; i < val.menus.length; i++) {
+            if (data.id === val.menus[i].pid) {
+              add = false
+              break
+            }
+          }
+          if (add) {
+            _this.menuIds.push(data.id)
+          }
+        })
+        // 处理权限数据
+        val.permissions.forEach(function(data, index) {
+          _this.permissionIds.push(data.id)
+				})
+      }
+    },
+		saveMenu() {
+      this.menuLoading = true
+      const role = { id: this.currentId, menus: [] }
+      // 得到半选的父节点数据，保存起来
+      this.$refs.menu.getHalfCheckedNodes().forEach(function(data, index) {
+        const permission = { id: data.id }
+        role.menus.push(permission)
+      })
+      // 得到已选中的 key 值
+      this.$refs.menu.getCheckedKeys().forEach(function(data, index) {
+        const permission = { id: data }
+        role.menus.push(permission)
+      })
+      updateRoleMenu(this.currentId, role).then(res => {
+        this.$notify({
+          title: '保存成功',
+          type: 'success',
+          duration: 2500
+				})
+				this.updateSingleRole();
+        this.menuLoading = false
+      }).catch(err => {
+        this.menuLoading = false
+      })
+    },
+		savePermission() {
+      this.permissionLoading = true
+      const role = { id: this.currentId, permissions: [] }
+      this.$refs.permission.getCheckedKeys().forEach(function(data, index) {
+        const permission = { id: data }
+        role.permissions.push(permission)
+      })
+      updateRolePermission(this.currentId,role).then(res => {
+        this.$notify({
+          title: '保存成功',
+          type: 'success',
+          duration: 2500
+				})
+				this.updateSingleRole();
+        this.permissionLoading = false
+      }).catch(err => {
+        this.permissionLoading = false
+      })
+		},
+		updateSingleRole() {
+      // 无刷新更新 表格数据
+      getSingleRole(this.currentId).then(response => {
+				const res = response.data;
+        for (let i = 0; i < this.list.length; i++) {
+          if (res.id === this.list[i].id) {
+            this.list[i] = res
+            break
+          }
+        }
+      })
+		},
+		subDelete(id) {
+      this.delLoading = true
+      deleteRole(id).then(res => {
+        this.delLoading = false
+				this.$refs[id].doClose()
+        this.$notify({
+          title: '删除成功',
+          type: 'success',
+          duration: 2500
+        })
+        this.showButton =false
+				this.getRoleList();
+      }).catch(err => {
+        this.delLoading = false
+        this.$refs[id].doClose()
+      })
+    },
+		add() {
+      this.isAdd = true
+      this.$refs.dialogForm.dialog = true
+		},
+		edit(data) {
+      this.isAdd = false
+      const _this = this.$refs.dialogForm
+			_this.deptIds = []
+			_this.form = { id: data.id, name: data.name, description: data.description, level: data.level, dataScope: data.dataScope }
+			if (_this.form.dataScope === '自定义') {
+        _this.getDepts()
+      }
+			for (let i = 0; i < data.depts.length; i++) {
+        _this.deptIds[i] = data.depts[i].id
+      }
+      _this.dialog = true
+		},
+		toQuery(){
+			this.getRoleList();
+		}
+	}
+}
+</script>
+
+<style rel="stylesheet/scss" lang="scss">
+  .role-span {
+    font-weight: bold;color: #303133;
+    font-size: 15px;
+  }
+</style>
