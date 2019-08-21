@@ -218,7 +218,7 @@ export default {
       _this.getJobs();
       _this.getRoles();
       _this.roleIds= []
-      _this.form = { username: data.username, enabled: data.enabled, telphone: data.telphone, email: data.email, dept: { id: data.dept.id }, job: { id: data.job.id }, roles: [] };
+      _this.form = { nickName: data.nickName, username: data.username, enabled: data.enabled, telphone: data.telphone, email: data.email, dept: { id: data.dept.id }, job: { id: data.job.id }, roles: [] };
       _this.deptId = data.dept.id
       _this.jobId = data.job.id
       data.roles.forEach(function(data, index) {

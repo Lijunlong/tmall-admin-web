@@ -7,6 +7,9 @@
       <el-form-item label="别名" prop="alias">
         <el-input v-model="form.alias" style="width: 360px;"/>
       </el-form-item>
+      <el-form-item label="菜单排序" prop="sort">
+        <el-input-number v-model.number="form.sort" :min="0" :max="999" controls-position="right" style="width: 360px;"/>
+      </el-form-item>
       <el-form-item style="margin-bottom: 0px;" label="上级类目">
         <treeselect v-model="form.pid" :options="permissions" style="width: 360px;" placeholder="选择上级类目" />
       </el-form-item>
@@ -34,13 +37,16 @@ export default {
   data() {
     return {
       loading: false, dialog: false, permissions: [],
-      form: { name: '', alias: '', pid: 0 },
+      form: { name: '', alias: '', sort: 999, pid: 0 },
       rules: {
         name: [
           { required: true, message: '请输入名称', trigger: 'blur' }
         ],
         alias: [
           { required: true, message: '请输入别名', trigger: 'blur' }
+        ],
+        sort: [
+          { required: true, message: '请输入序号', trigger: 'blur', type: 'number' }
         ]
       }
     }
@@ -52,7 +58,7 @@ export default {
     resetForm() {
       this.dialog = false
       this.$refs['form'].resetFields()
-      this.form = { name: '', alias: '', pid: 0 }
+      this.form = { name: '', alias: '', sort: 999, pid: 0 }
     },
     doSubmit() {
       this.$refs['form'].validate((valid) => {
@@ -116,6 +122,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style rel="stylesheet/scss" lang="scss" scoped>
+  /deep/ .el-input-number .el-input__inner {
+    text-align: left;
+  }
 </style>

@@ -1,8 +1,11 @@
 <template>
   <el-dialog :visible.sync="dialog" :title="isAdd ? '新增用户' : '编辑用户'" append-to-body width="570px">
 		<el-form ref="dialogForm" :inline="true" :rules="rules" :model="form" size="small" label-width="66px">
-      <el-form-item label="用户名" prop="username">
+      <el-form-item v-permission="['ADMIN']" label="用户名" style="width:100%" prop="username">
         <el-input v-model="form.username"/>
+      </el-form-item>
+      <el-form-item label="昵称" prop="nickName">
+        <el-input v-model="form.nickName"/>
       </el-form-item>
       <el-form-item label="状态" prop="enabled">
 				<el-radio-group v-model="form.enabled">
@@ -84,12 +87,16 @@ export default {
     }
     return {
 			dialog: false,
-			form: { username: '', enabled: '', telphone: null, email: '', dept: { id: '' }, job: { id: '' }, roles: [] },
+			form: { nickName: '', username: '', enabled: '', telphone: null, email: '', dept: { id: '' }, job: { id: '' }, roles: [] },
       style: 'width: 184px',
       jobListQuery: Object.assign({}, defaultJobListQuery),
       roleListQuery: Object.assign({}, defaultRoleListQuery),
       depts: [], jobs: [], roles: [], deptId: null, jobId: null, roleIds: [], loading: false, userId: null,
       rules: {
+        nickName: [
+          { required: true, message: '请输入别名', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ],
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
@@ -151,7 +158,7 @@ export default {
       this.deptId = null
       this.jobId = null
       this.roleIds = []
-      this.form = { username: '', enabled: '', telphone: null, email: '', dept: { id: '' }, job: { id: '' }, roles: [] }
+      this.form = { nickName: '', username: '', enabled: '', telphone: null, email: '', dept: { id: '' }, job: { id: '' }, roles: [] }
     },
     doSubmit() {
       this.form.dept.id = this.deptId

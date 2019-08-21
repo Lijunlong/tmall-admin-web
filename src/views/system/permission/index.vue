@@ -102,9 +102,11 @@ export default {
       this.$refs.dialogForm.dialog = true
     },
 		edit(data) {
+      console.log(data);
+      
       this.isAdd = false
       const _this = this.$refs.dialogForm
-      _this.form = { id: data.id, name: data.name, alias: data.alias, pid: data.pid }
+      _this.form = { id: data.id, name: data.name, alias: data.alias, sort: data.sort, pid: data.pid }
       _this.fetchPermissions()
       _this.dialog = true
     },
