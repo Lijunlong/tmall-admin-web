@@ -59,7 +59,9 @@
       </el-table-column>
     </tree-table>
   </div>
-  <div v-else>无法访问，您可能没有权限</div>
+  <div v-else style="padding:30px;">
+    <el-alert :closable="false" title="无法访问，您可能还没有权限" type="error"/>
+  </div>
 </template>
 
 <script>
