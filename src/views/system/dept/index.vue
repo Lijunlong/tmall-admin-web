@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div v-if="checkPermission(['ADMIN','DEPT_ALL','DEPT_SELECT'])" class="app-container">
     <!--工具栏-->
     <div class="head-container">
       <!-- 搜索 -->
@@ -9,7 +9,7 @@
       </el-select>
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
-      <div style="display: inline-block;margin: 0px 2px;">
+      <div v-permission="['ADMIN','DEPT_ALL','DEPT_CREATE']" style="display: inline-block;margin: 0px 2px;">
         <el-button
           class="filter-item"
           size="mini"
@@ -40,10 +40,11 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="130px" align="center">
+      <el-table-column v-if="checkPermission(['ADMIN','DEPT_ALL','DEPT_EDIT','DEPT_DELETE'])" label="操作" width="130px" align="center">
         <template slot-scope="scope">
-          <el-button size="mini" type="primary" icon="el-icon-edit" @click="edit(scope.row)"/>
+          <el-button v-permission="['ADMIN','DEPT_ALL','DEPT_EDIT']" size="mini" type="primary" icon="el-icon-edit" @click="edit(scope.row)"/>
           <el-popover
+            v-permission="['ADMIN','DEPT_ALL','DEPT_DELETE']"
             :ref="scope.row.id"
             placement="top"
             width="180">
@@ -58,9 +59,11 @@
       </el-table-column>
     </tree-table>
   </div>
+  <div v-else>无法访问，您可能没有权限</div>
 </template>
 
 <script>
+import checkPermission from '@/utils/permission'
 import treeTable from '@/components/TreeTable'
 import { parseTime } from '@/utils/index'
 import { getDeptList,getDepts,delDept } from '@/api/dept'
@@ -101,6 +104,7 @@ export default {
   },
   methods: {
     parseTime,
+    checkPermission,
     changeExpand() {
       this.expand = !this.expand
       this.getDeptList();

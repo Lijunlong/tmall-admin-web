@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div v-if="checkPermission(['ADMIN','USER_ALL','USER_SELECT'])" class="app-container">
     <!--form 组件-->
     <eForm ref="dialogForm" :is-add="isAdd" @getUserList="getUserList"/>
     <el-row :gutter="20">
@@ -24,7 +24,7 @@
           </el-select>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
           <!-- 新增 -->
-          <div style="display: inline-block;margin: 0px 2px;">
+          <div v-permission="['ADMIN','USER_ALL','USER_CREATE']" style="display: inline-block;margin: 0px 2px;">
             <el-button
               class="filter-item"
               size="mini"
@@ -53,10 +53,11 @@
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="125" align="center">
+          <el-table-column v-if="checkPermission(['ADMIN','USER_ALL','USER_EDIT','USER_DELETE'])" label="操作" width="125" align="center">
             <template slot-scope="scope">
-              <el-button size="mini" type="primary" icon="el-icon-edit" @click="edit(scope.row)"/>
+              <el-button v-permission="['ADMIN','USER_ALL','USER_EDIT']" size="mini" type="primary" icon="el-icon-edit" @click="edit(scope.row)"/>
               <el-popover
+                v-permission="['ADMIN','USER_ALL','USER_DELETE']"
                 :ref="scope.row.id"
                 placement="top"
                 width="180">
@@ -86,9 +87,11 @@
       </el-col>
     </el-row>
   </div>
+  <div v-else>无法访问，您可能没有权限</div>
 </template>
 
 <script>
+import checkPermission from '@/utils/permission'
 import { getDeptList } from '@/api/dept'
 import { fetchUserList } from '@/api/user'
 import { parseTime } from '@/utils/index'
@@ -145,6 +148,7 @@ export default {
   },
   methods: {
     parseTime,
+    checkPermission,
     handleSizeChange(val) {
       this.listQuery.pageNum = 1;
       this.listQuery.pageSize = val;

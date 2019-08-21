@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div v-if="checkPermission(['ADMIN','ROLES_ALL','ROLES_SELECT'])" class="app-container">
 		<!--表单组件-->
     <eForm ref="dialogForm" :is-add="isAdd" @getRoleList="getRoleList"/>
     <!--工具栏-->
@@ -8,7 +8,7 @@
       <el-input v-model="listQuery.name" clearable placeholder="输入名称搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
-      <div style="display: inline-block;margin: 0px 2px;">
+      <div v-permission="['ADMIN','ROLES_ALL','ROLES_CREATE']" style="display: inline-block;margin: 0px 2px;">
         <el-button
           class="filter-item"
           size="mini"
@@ -40,10 +40,11 @@
 								<span>{{ parseTime(scope.row.createTime) }}</span>
 							</template>
 						</el-table-column>
-						<el-table-column label="操作" width="130px" align="center">
+						<el-table-column v-if="checkPermission(['ADMIN','ROLES_ALL','ROLES_EDIT','ROLES_DELETE'])" label="操作" width="130px" align="center">
               <template slot-scope="scope">
-                <el-button size="mini" type="primary" icon="el-icon-edit" @click="edit(scope.row)"/>
+                <el-button v-permission="['ADMIN','ROLES_ALL','ROLES_EDIT']" size="mini" type="primary" icon="el-icon-edit" @click="edit(scope.row)"/>
                 <el-popover
+                  v-permission="['ADMIN','ROLES_ALL','ROLES_DELETE']"
                   :ref="scope.row.id"
                   placement="top"
                   width="180">
@@ -80,6 +81,7 @@
 							<span class="role-span">菜单分配</span>
 						</el-tooltip>
 						<el-button
+              v-permission="['ADMIN','ROLES_ALL','ROLES_EDIT']"
 							:disabled="!showButton"
 							:loading="menuLoading"
 							icon="el-icon-check"
@@ -103,6 +105,7 @@
 							<span class="role-span">权限分配</span>
 						</el-tooltip>
 						<el-button
+              v-permission="['ADMIN','ROLES_ALL','ROLES_EDIT']"
 							:disabled="!showButton"
 							:loading="permissionLoading"
 							icon="el-icon-check"
@@ -123,9 +126,11 @@
 			</el-col>
 		</el-row>
   </div>
+  <div v-else>无法访问，您可能没有权限</div>
 </template>
 
 <script>
+import checkPermission from '@/utils/permission'
 import { parseTime } from '@/utils/index'
 import { getRoles, updateRoleMenu, updateRolePermission, getSingleRole, deleteRole } from '@/api/role'
 import { getMenus } from '@/api/menu'
@@ -155,7 +160,8 @@ export default {
 		this.getPermissionTree();
   },
   methods: {
-		parseTime,
+    parseTime,
+    checkPermission,
 		handleSizeChange(val) {
       this.listQuery.pageNum = 1;
       this.listQuery.pageSize = val;
