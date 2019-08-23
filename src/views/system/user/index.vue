@@ -104,7 +104,7 @@ export default {
   components: { eForm },
   data() {
     return {
-      list: null,total: null,listLoading: false,delLoading: false,isAdd: false,deptName: '',depts: [],deptId: null,
+      list: [],total: null,listLoading: false,delLoading: false,isAdd: false,deptName: '',depts: [],deptId: null,
       defaultProps: {
         children: 'children',
         label: 'name'

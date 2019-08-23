@@ -9,6 +9,7 @@ const getters = {
   loadMenus: state => state.user.loadMenus,
   permission_routers: state => state.permission.routers,
   addRouters: state => state.permission.addRouters,
-  uploadImageApi: state => state.upload.uploadImageApi
+  uploadImageApi: state => state.upload.uploadImageApi,
+  updateAvatarApi: state => state.upload.updateAvatarApi
 }
 export default getters

@@ -58,8 +58,21 @@ export const constantRouterMap = [
         meta: { title: '首页', icon: 'index', noCache: true, affix: true }
       }
     ]
+  },
+  {
+    path: '/user',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'center',
+        component: () => import('@/views/system/user/center'),
+        name: '个人中心',
+        meta: { title: '个人中心', icon: 'user' }
+      }
+    ]
   }
-  // { path: '*', redirect: '/404', hidden: true }
 ]
 
 export default new Router({

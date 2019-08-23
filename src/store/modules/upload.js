@@ -3,6 +3,7 @@ const upload = {
   state: {
     // 图片上传
     uploadImageApi: baseUrl + '/files/upload',
+    updateAvatarApi: baseUrl + '/files/user/upload'
   }
 }
 

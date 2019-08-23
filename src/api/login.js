@@ -24,3 +24,11 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function updatePass(data) {
+  return request({
+    url: '/admin/update_pass',
+    method: 'post',
+    data: data
+  })
+}
