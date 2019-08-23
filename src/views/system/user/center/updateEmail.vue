@@ -71,35 +71,35 @@ export default {
 
 		},
 		sendCode(){
-			// if (this.form.email && this.form.email !== this.email) {
-      //   this.codeLoading = true
-      //   this.buttonName = '验证码发送中'
-      //   this.codeData.value = this.form.email
-      //   const _this = this
-      //   resetEmail(this.codeData).then(res => {
-      //     this.$message({
-      //       showClose: true,
-      //       message: '发送成功，验证码有效期5分钟',
-      //       type: 'success'
-      //     })
-      //     this.codeLoading = false
-      //     this.isDisabled = true
-      //     this.buttonName = this.time-- + '秒后重新发送'
-      //     this.timer = window.setInterval(function() {
-      //       _this.buttonName = _this.time + '秒后重新发送'
-      //       --_this.time
-      //       if (_this.time < 0) {
-      //         _this.buttonName = '重新发送'
-      //         _this.time = 60
-      //         _this.isDisabled = false
-      //         window.clearInterval(_this.timer)
-      //       }
-      //     }, 1000)
-      //   }).catch(err => {
-      //     this.resetForm()
-      //     this.codeLoading = false
-      //   })
-      // }
+			if (this.form.email && this.form.email !== this.email) {
+        this.codeLoading = true
+        this.buttonName = '验证码发送中'
+        this.codeData.value = this.form.email
+        const _this = this
+        resetEmail(this.codeData).then(res => {
+          this.$message({
+            showClose: true,
+            message: '发送成功，验证码有效期5分钟',
+            type: 'success'
+          })
+          this.codeLoading = false
+          this.isDisabled = true
+          this.buttonName = this.time-- + '秒后重新发送'
+          this.timer = window.setInterval(function() {
+            _this.buttonName = _this.time + '秒后重新发送'
+            --_this.time
+            if (_this.time < 0) {
+              _this.buttonName = '重新发送'
+              _this.time = 60
+              _this.isDisabled = false
+              window.clearInterval(_this.timer)
+            }
+          }, 1000)
+        }).catch(err => {
+          this.resetForm()
+          this.codeLoading = false
+        })
+      }
 		}
   }
 }
