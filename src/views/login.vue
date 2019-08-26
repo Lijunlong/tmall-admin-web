@@ -12,6 +12,14 @@
           <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon"/>
         </el-input>
       </el-form-item>
+      <el-form-item prop="code">
+        <el-input v-model="loginForm.code" auto-complete="off" placeholder="验证码" style="width: 63%" @keyup.enter.native="handleLogin">
+          <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon"/>
+        </el-input>
+        <div class="login-code">
+          <img :src="codeUrl" @click="getCode">
+        </div>
+      </el-form-item>
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住我</el-checkbox>
       <el-form-item style="width:100%;">
         <el-button :loading="loading" size="medium" type="primary" style="width:100%;" @click.native.prevent="handleLogin">
@@ -27,6 +35,8 @@
 import { encrypt } from '@/utils/rsaEncrypt'
 import Config from '@/config'
 import Cookies from 'js-cookie'
+import { getCodeImg } from '@/api/login'
+
 export default {
   name: 'Login',
   data() {
@@ -37,6 +47,7 @@ export default {
         username: 'admin',
         password: '123456',
         rememberMe: false,
+        code: '',
         uuid: ''
       },
       loginRules: {
@@ -57,6 +68,7 @@ export default {
   },
   created() {
     this.getCookie()
+    this.getCode()
   },
   methods: {
     getCookie() {
@@ -109,7 +121,13 @@ export default {
           return false
         }
       })
-    }
+    },
+    getCode(){
+      getCodeImg().then(res => {
+        this.codeUrl = 'data:image/gif;base64,' + res.data.img
+        this.loginForm.uuid = res.data.uuid
+      })
+    },
   }
 }
 </script>

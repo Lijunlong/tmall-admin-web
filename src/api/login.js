@@ -6,7 +6,9 @@ export function login(username, password, code, uuid) {
     method: 'post',
     data: {
       username,
-      password
+      password,
+      code,
+      uuid
     }
   })
 }
@@ -30,5 +32,12 @@ export function updatePass(data) {
     url: '/admin/update_pass',
     method: 'post',
     data: data
+  })
+}
+
+export function getCodeImg() {
+  return request({
+    url: '/admin/vCode',
+    method: 'get'
   })
 }

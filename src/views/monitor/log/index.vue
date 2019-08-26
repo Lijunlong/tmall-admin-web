@@ -4,6 +4,7 @@
     <el-table v-loading="listLoading" :data="list" size="small" style="width: 100%;">
       <el-table-column prop="creater" label="用户名"/>
       <el-table-column prop="requestIp" label="IP"/>
+      <el-table-column prop="address" label="IP来源"/>
       <el-table-column prop="description" label="描述"/>
       <el-table-column :show-overflow-tooltip="true" prop="method" label="方法名称"/>
       <el-table-column :show-overflow-tooltip="true" prop="params" label="参数"/>

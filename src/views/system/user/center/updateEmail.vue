@@ -25,6 +25,7 @@
 import store from '@/store'
 import { validatEmail } from '@/utils/validate'
 import { resetEmail } from '@/api/code'
+import { updateEmail } from '@/api/user'
 
 export default {
   props: {
@@ -49,7 +50,7 @@ export default {
       loading: false, dialog: false, title: '修改邮箱', form: { pass: '', email: '', code: '' },
       user: { email: '', password: '' }, codeLoading: false,
       codeData: { type: 'email', value: '' },
-      buttonName: '获取验证码', isDisabled: false, time: 60,
+      buttonName: '获取验证码', isDisabled: false, time: 60, timer: null,
       rules: {
         pass: [
           { required: true, message: '当前密码不能为空', trigger: 'blur' }
@@ -64,40 +65,78 @@ export default {
     }
   },
   methods: {
-		cancel(){
-
-		},
+		cancel() {
+      this.resetForm()
+    },
+    resetForm() {
+      this.dialog = false
+      this.$refs['form'].resetFields()
+      window.clearInterval(this.timer)
+      this.time = 60
+      this.buttonName = '获取验证码'
+      this.isDisabled = false
+      this.form = { pass: '', email: '', code: '' }
+    },
 		doSubmit(){
-
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          this.loading = true
+          this.user = { email: this.form.email, password: this.form.pass }
+          updateEmail(this.form.code, this.user).then(response => {
+            this.loading = false
+            this.resetForm()
+            this.$notify({
+              title: '邮箱修改成功',
+              type: 'success',
+              duration: 1500
+            })
+            store.dispatch('GetInfo').then(() => {})
+          }).catch(err => {
+            this.loading = false
+          })
+        } else {
+          return false
+        }
+      })
 		},
 		sendCode(){
 			if (this.form.email && this.form.email !== this.email) {
-        this.codeLoading = true
-        this.buttonName = '验证码发送中'
-        this.codeData.value = this.form.email
-        const _this = this
-        resetEmail(this.codeData).then(res => {
-          this.$message({
-            showClose: true,
-            message: '发送成功，验证码有效期5分钟',
-            type: 'success'
+        if (validatEmail(this.form.email)) {
+          this.codeLoading = true
+          this.buttonName = '验证码发送中'
+          this.codeData.value = this.form.email
+          const _this = this
+          resetEmail(this.codeData).then(res => {
+            this.$message({
+              showClose: true,
+              message: '发送成功，验证码有效期5分钟',
+              type: 'success'
+            })
+            this.codeLoading = false
+            this.isDisabled = true
+            this.buttonName = this.time-- + '秒后重新发送'
+            this.timer = window.setInterval(function() {
+              _this.buttonName = _this.time + '秒后重新发送'
+              --_this.time
+              if (_this.time < 0) {
+                _this.buttonName = '重新发送'
+                _this.time = 60
+                _this.isDisabled = false
+                window.clearInterval(_this.timer)
+              }
+            }, 1000)
+          }).catch(err => {
+            this.resetForm()
+            this.codeLoading = false
           })
+        }else{
           this.codeLoading = false
-          this.isDisabled = true
-          this.buttonName = this.time-- + '秒后重新发送'
-          this.timer = window.setInterval(function() {
-            _this.buttonName = _this.time + '秒后重新发送'
-            --_this.time
-            if (_this.time < 0) {
-              _this.buttonName = '重新发送'
-              _this.time = 60
-              _this.isDisabled = false
-              window.clearInterval(_this.timer)
-            }
-          }, 1000)
-        }).catch(err => {
-          this.resetForm()
-          this.codeLoading = false
+        }
+      }else{
+        this.$notify({
+          title: '邮箱地址没有变，不能发送验证码',
+          type: 'error',
+          duration: 1500
         })
       }
 		}
