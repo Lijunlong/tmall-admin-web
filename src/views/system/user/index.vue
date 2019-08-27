@@ -111,11 +111,7 @@ export default {
       },
       listQuery: {
         pageNum: 1,
-        pageSize: 5,
-        deptId: null,
-        username: null,
-        email: null,
-        enabled: null
+        pageSize: 5
       },
       query: {
         value: null,
