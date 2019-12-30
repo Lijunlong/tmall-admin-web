@@ -32,8 +32,17 @@ module.exports = {
     filename: '[name].js',
     publicPath:
       process.env.NODE_ENV === 'production'
-        ? config.build.assetsPublicPath
-        : config.dev.assetsPublicPath
+        ? "./" + config.build.assetsPublicPath
+        : "./" + config.dev.assetsPublicPath
+  },
+  performance: {
+    hints: "warning", // 枚举
+    maxAssetSize: 30000000, // 整数类型（以字节为单位）
+    maxEntrypointSize: 50000000, // 整数类型（以字节为单位）
+    assetFilter: function(assetFilename) {
+    // 提供资源文件名的断言函数
+    return assetFilename.endsWith('.css') || assetFilename.endsWith('.js')
+    }
   },
   resolve: {
     modules: [path.resolve(__dirname, '../node_modules')],
