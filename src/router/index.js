@@ -54,9 +54,19 @@ router.beforeEach((to, from, next) => {
 })
 
 export const loadMenus = (next, to) => {
+  console.log("AAAA     next");
+  console.log(next);
+  console.log("AAAA     to");
+  console.log(to);
+  console.log("   END");
+
   buildMenus().then(res => {
     const asyncRouter = filterAsyncRouter(res.data)
     asyncRouter.push({ path: '*', redirect: '/404', hidden: true })
+
+    console.log("AAAAAAAAAA         asyncRouter");
+    console.log(asyncRouter);
+    
     store.dispatch('GenerateRoutes', asyncRouter).then(() => { // 存储路由
       router.addRoutes(asyncRouter) // 动态添加可访问路由表
       next({ ...to, replace: true })// hack方法 确保addRoutes已完成
