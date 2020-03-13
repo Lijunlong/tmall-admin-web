@@ -20,6 +20,13 @@ export function getInfo() {
   })
 }
 
+export function logOut() {
+  return request({
+    url: '/admin/logout',
+    method: 'post',
+  })
+}
+
 export function logout() {
   return request({
     url: '/admin/logout',

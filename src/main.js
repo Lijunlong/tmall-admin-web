@@ -9,6 +9,9 @@ import 'mavon-editor/dist/css/index.css'
 
 import '@/styles/index.scss' // global css
 
+// 数据字典
+import dict from './components/Dict'
+
 import App from './App'
 import router from './router/routers'
 import permission from './components/permission'
@@ -19,6 +22,7 @@ import './router/index' // permission control
 
 Vue.use(mavonEditor)
 Vue.use(permission)
+Vue.use(dict)
 Vue.use(ElementUI, { locale })
 Vue.config.productionTip = false
 require('babel-polyfill')

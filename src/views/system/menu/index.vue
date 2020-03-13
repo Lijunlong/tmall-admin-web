@@ -112,14 +112,16 @@ export default {
       });
 		},
 		add() {
-      this.isAdd = true
-      this.$refs.dialogForm.getMenus()
-      this.$refs.dialogForm.dialog = true
+	  this.isAdd = true
+	  const _this = this.$refs.dialogForm
+	  _this.form = {sort: 999, iFrame: '1', hidden: '1', httpPrefix: 'http://',icon: ''}
+	  _this.getMenus()
+	  _this.dialog = true
     },
 		edit(data) {
       this.isAdd = false
-      const _this = this.$refs.dialogForm
-      _this.form = { id: data.id, component: data.component, name: data.name, sort: data.sort, pid: data.pid, path: data.path, iFrame: data.iFrame, roles: [], icon: data.icon, enabled: data.enabled, hidden: data.hidden }
+		const _this = this.$refs.dialogForm
+      _this.form = { id: data.id, component: data.component, name: data.name, sort: data.sort, pid: data.pid, path: data.path, iFrame: data.iFrame, roles: [], icon: data.icon, hidden: data.hidden, httpPrefix: data.httpPrefix }
       _this.getMenus()
       _this.dialog = true
 		},

@@ -1,25 +1,19 @@
 <template>
   <el-dialog :visible.sync="dialog" :title="isAdd ? '新增用户' : '编辑用户'" append-to-body width="570px">
 		<el-form ref="dialogForm" :inline="true" :rules="rules" :model="form" size="small" label-width="66px">
-      <el-form-item v-permission="['ADMIN']" label="用户名" style="width:100%" prop="username">
+      <el-form-item v-permission="['ADMIN']" label="用户名" prop="username">
         <el-input v-model="form.username"/>
-      </el-form-item>
-      <el-form-item label="昵称" prop="nickName">
-        <el-input v-model="form.nickName"/>
-      </el-form-item>
-      <el-form-item label="状态" prop="enabled">
-				<el-radio-group v-model="form.enabled">
-          <el-radio :label="1">启用</el-radio>
-          <el-radio :label="0">禁用</el-radio>
-        </el-radio-group>
       </el-form-item>
       <el-form-item label="电话" prop="telphone">
         <el-input v-model.number="form.telphone" />
       </el-form-item>
+      <el-form-item label="昵称" prop="nickName">
+        <el-input v-model="form.nickName"/>
+      </el-form-item>
       <el-form-item label="邮箱" prop="email">
         <el-input v-model="form.email" />
       </el-form-item>
-			<el-form-item label="部门">
+      <el-form-item label="部门">
         <treeselect v-model="deptId" :options="depts" :style="style" placeholder="选择部门" @select="selectFun" />
       </el-form-item>
       <el-form-item label="岗位">
@@ -30,6 +24,18 @@
             :label="item.name"
             :value="item.id"/>
         </el-select>
+      </el-form-item>
+      <el-form-item label="性别">
+        <el-radio-group v-model="form.sex" style="width: 178px">
+          <el-radio label="男">男</el-radio>
+          <el-radio label="女">女</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="状态" prop="enabled">
+				<el-radio-group v-model="form.enabled">
+          <el-radio :label="1">启用</el-radio>
+          <el-radio :label="0">禁用</el-radio>
+        </el-radio-group>
       </el-form-item>
       <el-form-item style="margin-bottom: 0px;" label="角色">
         <el-select v-model="roleIds" style="width: 450px;" multiple placeholder="请选择">
@@ -87,8 +93,8 @@ export default {
     }
     return {
 			dialog: false,
-			form: { nickName: '', username: '', enabled: '', telphone: null, email: '', dept: { id: '' }, job: { id: '' }, roles: [] },
-      style: 'width: 184px',
+			form: { nickName: '', username: '',sex: '', enabled: '', telphone: null, email: '', dept: { id: '' }, job: { id: '' }, roles: [] },
+      style: 'width: 172px',
       jobListQuery: Object.assign({}, defaultJobListQuery),
       roleListQuery: Object.assign({}, defaultRoleListQuery),
       depts: [], jobs: [], roles: [], deptId: null, jobId: null, roleIds: [], loading: false, userId: null,
